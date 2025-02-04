@@ -1,3 +1,9 @@
+CogACT-Base/
+datasets/
+model_checkout/
+scripts/wandb/
+scripts/temp.gif
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

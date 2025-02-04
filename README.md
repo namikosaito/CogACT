@@ -102,6 +102,8 @@ Next, create a [Hugging Face user access token](https://huggingface.co/docs/hub/
 export HF_TOKEN = hf_..
 ```
 
+created a .hf_token file in the project folder and add the HF_TOKEN. (Put only the token.)
+
 Then launch the training script. We use one node with 8 A100 GPUs as an example.
 ```bash
 torchrun --standalone --nnodes 1 --nproc-per-node 8 scripts/train.py \
@@ -124,6 +126,12 @@ torchrun --standalone --nnodes 1 --nproc-per-node 8 scripts/train.py \
   --action_model_type DiT-B \
   --is_resume False
 ```
+
+In my case, only have 1 GPU, then 
+```
+torchrun --standalone --nnodes 1 --nproc-per-node 1 scripts/train.py --pretrained_checkpoint CogACT/CogACT-Base --vla.type prism-dinosiglip-224px+oxe+diffusion --vla.data_mix bridge --vla.expected_world_size 1 --vla.global_batch_size 32 --vla.per_device_batch_size 32 --vla.learning_rate 2e-5 --data_root_dir /home/namikosaito/open_x --run_root_dir /home/namikosaito/exp/test/ --run_id test_exp --image_aug True --wandb_project "" --wandb_entity "" --save_interval 5000 --repeated_diffusion_steps 8 --future_action_window_size 15 --action_model_type DiT-B --is_resume False --vla.freeze_vision_backbone True --vla.freeze_llm_backbon True --vla.unfreeze_last_llm_layer True
+```
+
 More customized training settings and changes can be made in [`conf/vla.py`](conf/vla.py) by modifying and registering a new VLA type. If you want to resume from a checkpoint instead of starting training from scratch, please set `is_resume=True`. Note that you also need to set `--resume_step` and `--resume_epoch` to match the checkpoint, and the optimizer in the checkpoint also needs to be loaded.
 
 To finetune on datasets belong to [Open X-Embodiment (OXE)](https://robotics-transformer-x.github.io/), you can download them from [OXE](https://robotics-transformer-x.github.io/) and change the ``vla.data_mix`` to the corresponding name. To finetune on your own customized data, please follow the instruction [(rlds_dataset_builder)](https://github.com/kpertsch/rlds_dataset_builder) for converting your data to RLDS format. The actions should be the deltas of end effector ``EEF Delta XYZ (3) + Roll-Pitch-Yaw (3) + Gripper Open/Close (1)``. Once your customized data is ready, place the customized data directly under the ``<data_root_dir>/custom_finetuning/1.0.0`` directory. Then set ``vla.data_mix="custom_finetuning"``.
