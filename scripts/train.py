@@ -58,6 +58,7 @@ class TrainConfig:
     # Directory Paths
     data_root_dir: Path = Path(                                     # Path to Open-X dataset directory
         "datasets/cmu_franka_exploration_dataset_converted_externally_to_rlds"
+        # "datasets/io_ai_tech"
     )
     run_root_dir: Path = Path("runs")                               # Path to directory to store logs & checkpoints
 
