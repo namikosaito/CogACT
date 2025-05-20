@@ -136,6 +136,15 @@ More customized training settings and changes can be made in [`conf/vla.py`](con
 
 To finetune on datasets belong to [Open X-Embodiment (OXE)](https://robotics-transformer-x.github.io/), you can download them from [OXE](https://robotics-transformer-x.github.io/) and change the ``vla.data_mix`` to the corresponding name. To finetune on your own customized data, please follow the instruction [(rlds_dataset_builder)](https://github.com/kpertsch/rlds_dataset_builder) for converting your data to RLDS format. The actions should be the deltas of end effector ``EEF Delta XYZ (3) + Roll-Pitch-Yaw (3) + Gripper Open/Close (1)``. Once your customized data is ready, place the customized data directly under the ``<data_root_dir>/custom_finetuning/1.0.0`` directory. Then set ``vla.data_mix="custom_finetuning"``.
 
+- prismatic/vla/datasets/rlds/oxe/mixtures.py: Define a new mixture for your fine-tuning mixture in the OXE_NAMED_MIXTURES dictionary
+- prismatic/vla/datasets/rlds/oxe/transforms.py: Define a new dataset transform function for your fine-tuning dataset, and add it to the OXE_STANDARDIZATION_TRANSFORMS registry at the bottom of the file.
+- prismatic/vla/datasets/rlds/oxe/configs.py: Add a new configuration specifying your fine-tuning dataset's observation and action spaces to the OXE_DATASET_CONFIGS dictionary.
+
+### If we want to change the dimention of the output
+- CogACT/scripts/train.py: change the "action_dim"
+- prismatic/vla/datasets/rlds/oxe/materialize.py: add the ActionEncoding according to the configs.py
+
+
 ## Training CogACT from Scratch
 You can start the trainging from the weights of [OpenVLA](https://github.com/openvla/openvla) for greater efficiency. Please follow the instruction of [OpenVLA](https://github.com/openvla/openvla) to download their weights:
 ```bash

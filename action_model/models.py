@@ -160,7 +160,7 @@ class DiT(nn.Module):
     """
     def __init__(
         self,
-        in_channels=7,
+        in_channels=22,#7,
         hidden_size=1152,
         depth=28,
         num_heads=16,

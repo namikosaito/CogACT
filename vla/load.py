@@ -128,43 +128,43 @@ def load_vla(
 
     # TODO (siddk, moojink) :: Unify semantics with `load()` above; right now, `load_vla()` assumes path points to
     #   checkpoint `.pt` file, rather than the top-level run directory!
-    if os.path.isfile(model_id_or_path):
-        overwatch.info(f"Loading from local checkpoint path `{(checkpoint_pt := Path(model_id_or_path))}`")
+    # if os.path.isfile(model_id_or_path):
+    overwatch.info(f"Loading from local checkpoint path `{(checkpoint_pt := Path(model_id_or_path))}`")
 
-        # [Validate] Checkpoint Path should look like `.../<RUN_ID>/checkpoints/<CHECKPOINT_PATH>.pt`
-        assert (checkpoint_pt.suffix == ".pt") and (checkpoint_pt.parent.name == "checkpoints"), "Invalid checkpoint!"
-        run_dir = checkpoint_pt.parents[1]
+    # [Validate] Checkpoint Path should look like `.../<RUN_ID>/checkpoints/<CHECKPOINT_PATH>.pt`
+    assert (checkpoint_pt.suffix == ".pt") and (checkpoint_pt.parent.name == "checkpoints"), "Invalid checkpoint!"
+    run_dir = checkpoint_pt.parents[1]
 
-        # Get paths for `config.json`, `dataset_statistics.json` and pretrained checkpoint
-        config_json, dataset_statistics_json = run_dir / "config.json", run_dir / "dataset_statistics.json"
-        assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
-        assert dataset_statistics_json.exists(), f"Missing `dataset_statistics.json` for `{run_dir = }`"
+    # Get paths for `config.json`, `dataset_statistics.json` and pretrained checkpoint
+    config_json, dataset_statistics_json = run_dir / "config.json", run_dir / "dataset_statistics.json"
+    assert config_json.exists(), f"Missing `config.json` for `{run_dir = }`"
+    assert dataset_statistics_json.exists(), f"Missing `dataset_statistics.json` for `{run_dir = }`"
 
     # Otherwise =>> try looking for a match on `model_id_or_path` on the HF Hub (`model_id_or_path`)
-    else:
-        # Search HF Hub Repo via fsspec API
-        overwatch.info(f"Checking HF for `{(hf_path := str(Path(model_id_or_path)))}`")
-        if not (tmpfs := HfFileSystem()).exists(hf_path):
-            raise ValueError(f"Couldn't find valid HF Hub Path `{hf_path = }`")
+    # else:
+    #     # Search HF Hub Repo via fsspec API
+    #     overwatch.info(f"Checking HF for `{(hf_path := str(Path(model_id_or_path)))}`")
+    #     if not (tmpfs := HfFileSystem()).exists(hf_path):
+    #         raise ValueError(f"Couldn't find valid HF Hub Path `{hf_path = }`")
 
-        valid_ckpts = tmpfs.glob(f"{hf_path}/checkpoints/*.pt")
-        if (len(valid_ckpts) == 0) or (len(valid_ckpts) != 1):
-            raise ValueError(f"Couldn't find a valid checkpoint to load from HF Hub Path `{hf_path}/checkpoints/")
+    #     valid_ckpts = tmpfs.glob(f"{hf_path}/checkpoints/*.pt")
+    #     if (len(valid_ckpts) == 0) or (len(valid_ckpts) != 1):
+    #         raise ValueError(f"Couldn't find a valid checkpoint to load from HF Hub Path `{hf_path}/checkpoints/")
 
-        target_ckpt = Path(valid_ckpts[-1]).name
-        model_id_or_path = str(model_id_or_path)  # Convert to string for HF Hub API
-        overwatch.info(f"Downloading Model `{model_id_or_path}` Config & Checkpoint `{target_ckpt}`")
-        with overwatch.local_zero_first():
-            # relpath = Path(model_type) / model_id_or_path
-            config_json = hf_hub_download(
-                repo_id=model_id_or_path, filename=f"{('config.json')!s}", cache_dir=cache_dir
-            )
-            dataset_statistics_json = hf_hub_download(
-                repo_id=model_id_or_path, filename=f"{('dataset_statistics.json')!s}", cache_dir=cache_dir
-            )
-            checkpoint_pt = hf_hub_download(
-                repo_id=model_id_or_path, filename=f"{(Path('checkpoints') / target_ckpt)!s}", cache_dir=cache_dir
-            )
+    #     target_ckpt = Path(valid_ckpts[-1]).name
+    #     model_id_or_path = str(model_id_or_path)  # Convert to string for HF Hub API
+    #     overwatch.info(f"Downloading Model `{model_id_or_path}` Config & Checkpoint `{target_ckpt}`")
+    #     with overwatch.local_zero_first():
+    #         # relpath = Path(model_type) / model_id_or_path
+    #         config_json = hf_hub_download(
+    #             repo_id=model_id_or_path, filename=f"{('config.json')!s}", cache_dir=cache_dir
+    #         )
+    #         dataset_statistics_json = hf_hub_download(
+    #             repo_id=model_id_or_path, filename=f"{('dataset_statistics.json')!s}", cache_dir=cache_dir
+    #         )
+    #         checkpoint_pt = hf_hub_download(
+    #             repo_id=model_id_or_path, filename=f"{(Path('checkpoints') / target_ckpt)!s}", cache_dir=cache_dir
+    #         )
 
     # Load VLA Config (and corresponding base VLM `ModelConfig`) from `config.json`
     with open(config_json, "r") as f:
