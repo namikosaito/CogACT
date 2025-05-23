@@ -44,7 +44,7 @@ class CogACT(nn.Module):
         vlm: PrismaticVLM,
         action_model_type: str = 'DiT-B',
         token_size: int = 4096,
-        action_dim: int = 22,#7,
+        action_dim: int = 24,#7,
         future_action_window_size: int = 15,
         past_action_window_size: int = 0,
         use_ema: bool = False,
@@ -195,7 +195,7 @@ class CogACT(nn.Module):
         enable_mixed_precision_training: bool = True,
         arch_specifier: str = "gelu-mlp",
         freeze_weights: bool = True,
-        action_dim: int = 22,#7,
+        action_dim: int = 24,#7,
         future_action_window_size: int = 15,
         past_action_window_size: int = 0,
         action_model_type: str = 'DiT-B',
@@ -507,6 +507,9 @@ class CogACT(nn.Module):
 
         # Sample random noise
         noise = torch.randn(B, self.future_action_window_size+1, self.action_model.in_channels, device=cognition_features.device).to(model_dtype)  #[B, T, D]
+        # TODO: if you use noise, need to comment out
+        noise = torch.zeros_like(noise)
+
         # Setup classifier-free guidance:
         if using_cfg:
             noise = torch.cat([noise, noise], 0)
@@ -523,7 +526,7 @@ class CogACT(nn.Module):
 
         # DDIM Sampling
         if use_ddim and num_ddim_steps is not None:
-            if self.action_model.ddim_diffusion is None:
+            if self.action_model.ddim_diffusion is None: 
                 self.action_model.create_ddim(ddim_step=num_ddim_steps)
             samples = self.action_model.ddim_diffusion.ddim_sample_loop(sample_fn, 
                                                                 noise.shape, 

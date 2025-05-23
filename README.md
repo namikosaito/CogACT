@@ -142,6 +142,7 @@ To finetune on datasets belong to [Open X-Embodiment (OXE)](https://robotics-tra
 
 ### If we want to change the dimention of the output
 - CogACT/scripts/train.py: change the "action_dim"
+- CogACT/vla/cogact.py: change the "action_dim"
 - prismatic/vla/datasets/rlds/oxe/materialize.py: add the ActionEncoding according to the configs.py
 
 
